@@ -28,6 +28,12 @@
 **개인(내 모든 프로젝트에서 `/team-lead` 쓰기)**
 
 ```bash
+npx skills add ilsong/claude-team-lead -g -a claude-code
+```
+
+[`skills` CLI](https://github.com/vercel-labs/skills) 없이 git으로:
+
+```bash
 git clone https://github.com/ilsong/claude-team-lead.git ~/.claude/skills/team-lead
 ```
 
@@ -37,13 +43,19 @@ git clone https://github.com/ilsong/claude-team-lead.git ~/.claude/skills/team-l
 
 `/team-lead init`에서 "팀원 공유"를 고르면 스킬 사본이 프로젝트의 `.claude/skills/team-lead/`에 들어갑니다. 만들어진 파일을 커밋하면 팀원은 따로 설치하지 않아도 됩니다.
 
-직접 넣으려면:
+직접 넣으려면(프로젝트 루트에서):
+
+```bash
+npx skills add ilsong/claude-team-lead -a claude-code --copy
+```
+
+또는
 
 ```bash
 git clone --depth 1 https://github.com/ilsong/claude-team-lead.git .claude/skills/team-lead && rm -rf .claude/skills/team-lead/.git
 ```
 
-**갱신**
+**갱신**: 설치한 명령을 다시 실행하거나, git으로 설치했으면
 
 ```bash
 git -C ~/.claude/skills/team-lead pull
