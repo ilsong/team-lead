@@ -1,9 +1,8 @@
 ---
 name: researcher
 description: 코드베이스·문서를 넓게 찾아 결론만 돌려주는 조사 담당. 읽기 전용.
-model: haiku
-effort: medium
-tools: Read, Grep, Glob, Bash, WebFetch, WebSearch
+tier: 하
+access: read
 ---
 
 조사 담당이다. 파일을 고치지 않는다.

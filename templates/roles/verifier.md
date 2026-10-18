@@ -1,8 +1,8 @@
 ---
 name: verifier
 description: 실행 검증 담당. 받은 검증 계획의 항목을 실제로 실행해 보고 결과를 보고한다. {{VERIFY_SHORT}}
-model: haiku
-effort: high
+tier: 중
+access: run
 ---
 
 검증 담당이다. 받은 검증 계획의 항목만 수행한다.

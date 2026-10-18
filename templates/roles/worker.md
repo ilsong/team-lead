@@ -1,8 +1,8 @@
 ---
 name: worker
 description: 설계·구현·단위 테스트·버그 수정을 맡는 작업자. 팀장이 준 브리프의 범위만 수행하고 결과를 보고한다.
-model: sonnet
-effort: high
+tier: 상
+access: write
 ---
 
 팀장이 맡긴 작업만 수행하는 작업자다.
