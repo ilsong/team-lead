@@ -20,8 +20,10 @@ team-lead assign   # Make the current chat session the team lead
 | Team lead (main session) | Design, task breakdown, parallel dispatch, review, integration |
 | `worker` | Implementation and unit tests |
 | `reviewer` | Code review (read-only) |
-| `researcher` | Code/doc research (read-only, cheap model) |
 | `verifier` | Runs tests, browser, emulator checks |
+| Custom | Any role you describe in init (name, what it does, read-only or not, model level) |
+
+`worker`, `reviewer`, and `verifier` are recommended presets; pick any of them, and add your own.
 
 Delegation methods, chosen per role: subagent (default), child chat session, another agent CLI (e.g. Claude lead → `codex exec` reviewer), or manual handoff (the brief is shown in chat for you to run elsewhere). No method writes record files.
 
@@ -44,10 +46,14 @@ Installing changes nothing until you run `init`.
 
 Asks:
 1. Platforms — Claude Code / Codex / Gemini CLI / other
-2. Roles — worker / reviewer / researcher / verifier
-3. Delegation methods, and which role uses which
-4. Model level — Balanced / Quality / Economy (Claude Code Balanced: worker·reviewer `sonnet`, verifier·researcher `haiku`)
-5. Where to record it, per platform:
+2. Preset roles — worker / reviewer / verifier
+3. Custom roles — always asked separately
+4. Delegation methods, and which role uses which
+5. Model level — Balanced / Quality / Economy (Claude Code Balanced: worker·reviewer `sonnet`, verifier `haiku`)
+6. Before dispatch — show the breakdown and wait for approval / dispatch right away
+7. How parallel write tasks are isolated — git worktree each / `git clone` each / same checkout, split by files
+8. With worktree or clone, when a task is done — lead merges locally / PR per task / leave the branch for you
+9. Where to record it, per platform:
 
    | Scope | Claude Code | Codex | Gemini CLI |
    |---|---|---|---|

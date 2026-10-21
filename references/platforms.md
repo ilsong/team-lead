@@ -15,7 +15,7 @@ Without a question tool, put the questions in one message with numbers and optio
 
 ## 2. Agent definition formats
 
-Built from the role template's `description` and body plus the chosen model and effort.
+Built from the role's `description` and body (preset template or the user's custom role) plus the chosen model and effort.
 
 **Claude Code** — `agents/<role>.md`
 ```
@@ -24,7 +24,7 @@ name: <role>
 description: <description>
 model: <opus|sonnet|haiku or a full model ID>
 effort: <low|medium|high|xhigh|max>
-tools: <if access is read: Read, Grep, Glob, Bash (researcher adds WebFetch, WebSearch). Omit the line otherwise>
+tools: <if access is read: Read, Grep, Glob, Bash. Omit the line otherwise>
 ---
 <body>
 ```
