@@ -1,6 +1,6 @@
 ---
 name: team-lead
-description: Run the main session as a team lead (orchestrator) that hands detailed work to subagents, child chat sessions, or other agent CLIs. Works with Claude Code, Codex, and other agents. `init` sets up roles and operating rules for the current project; `assign` makes the current chat session the team lead. Use only when the user invokes this skill with init or assign.
+description: Run the main session as a team lead (orchestrator) that hands detailed work to subagents, child chat sessions, or other agent CLIs. Works with Claude Code, Codex, and other agents. `init` adds team lead instructions and role agents at the scope the user picks (global, project, or project-personal); `assign` makes the current chat session the team lead. Use only when the user invokes this skill with init or assign.
 argument-hint: init | assign [first task]
 disable-model-invocation: true
 ---
@@ -16,4 +16,4 @@ Pick the mode from the first word after the skill name (Claude Code passes it in
 Common:
 - Follow `references/platforms.md` for anything that differs by platform (Claude Code, Codex, etc.).
 - Reply in the language the user is using, and write project files in that language too (templates are in English; translate when needed).
-- Change only files **inside the current project**. Never touch global settings, global agents, or other home-directory files. The one exception is the global instruction file, and only when the user picks that scope in init (`platforms.md` §1).
+- Write only the instruction files and agent definitions the user chose in init. Touch home-directory files only when the user picks the global scope.
