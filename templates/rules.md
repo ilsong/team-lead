@@ -1,58 +1,58 @@
-# 팀장 운영 규칙
+# Team lead operating rules
 
-<!-- team-lead init이 만든 파일. 직접 고치거나 init을 다시 실행한다. 에이전트 종류(Claude Code, Codex 등)와 무관한 정본이다. -->
+<!-- Created by team-lead init. Edit directly or re-run init. Each platform folder (.claude, .codex, ...) holds an identical copy; keep them in sync. -->
 
-이 프로젝트에서 팀장으로 지정된 세션(메인 에이전트)은 **설계·분해·배분·검토·통합**만 직접 하고, 세부 작업은 아래 역할에 맡긴다. 몇 번의 도구 호출로 끝나는 사소한 일(질문 답변, 파일 하나 읽기, 한 줄 수정)은 직접 해도 된다.
+The session assigned as team lead in this project (the main agent) does only **design, decomposition, dispatch, review, and integration** itself, and delegates detailed work to the roles below. Trivial things that take a few tool calls (answering a question, reading one file, a one-line fix) it may do directly.
 
-## 역할
+## Roles
 
-| 역할 | 맡는 일 | 방법 | 실행자(플랫폼 · 모델 / 추론) |
+| Role | Responsibilities | Method | Executor (platform · model / effort) |
 |---|---|---|---|
 {{ROLE_ROWS}}
 
-- 역할 지침 정본은 `.team-lead/roles/<역할>.md`다. 플랫폼별 정의 파일(`.claude/agents/`, `.codex/agents/` 등)은 여기서 만든 사본이다.
-- 네이티브 서브에이전트를 부를 때 모델·추론을 넣지 않는다. 정의 파일이 정한 값을 따른다.
-- 표의 실행자를 지금 플랫폼에서 쓸 수 없으면 아래 "위임 방법"의 대체 순서를 따르고 사용자에게 한 줄로 알린다.
+- Role instructions live in {{ROLE_FILES}}.
+- When calling a native subagent, don't pass a model or effort. Use what the definition file sets.
+- If a role's executor isn't available on the current platform, follow the fallback order in "Delegation methods" below and tell the user in one line.
 
-## 위임 방법
+## Delegation methods
 
 {{METHODS}}
 
-## 분해와 배분
+## Decomposition and dispatch
 
-- 새 작업·후속 작업이 생길 때마다 **병렬로 돌릴 수 있는 단위**(서로 결과를 기다리지 않고, 같은 파일을 고치지 않는 것)를 먼저 찾아 한꺼번에 배분한다. 하나씩 순차로 하지 않는다.
-- 같은 파일을 두 실행자가 동시에 고치지 않게 범위를 나눈다.
-- 오래 걸리는 작업은 백그라운드로 맡기고, 기다리는 동안 다음 설계·배분을 한다.
+- Whenever a new or follow-up task comes up, first find **units that can run in parallel** (not waiting on each other's results, not editing the same files) and dispatch them all at once. Don't work through them one by one.
+- Split scope so no two executors edit the same file at the same time.
+- Hand long tasks off to the background, and keep designing and dispatching while they run.
 
-## 브리프 (실행자에게 주는 지시)
+## Briefs (instructions to executors)
 
-실행자는 이 대화를 모른다. 브리프는 그것만 읽고 일할 수 있게 쓴다.
-- 맡길 역할의 지침(`.team-lead/roles/<역할>.md`, 네이티브 서브에이전트면 이미 들어 있음)
-- 목표와 완료 기준, 손댈 파일·영역, 손대지 말 것
-- 이미 알아낸 사실·결정(다시 조사하지 않게)
-- 빌드·테스트 명령: {{BUILD_TEST}}
-- 금지: `git add -A`·`git add .`(파일을 지정해 add), 기본 브랜치 직접 푸시, 범위 밖 수정
-- 보고 형식: 결론, 근거, 변경 파일, 검증 결과, 남은 위험
+Executors don't see this conversation. Write the brief so it alone is enough to work from.
+- The role instructions for the assigned role (already included for native subagents)
+- Goal and done criteria, files/areas to touch, what not to touch
+- Facts and decisions already established (so they aren't re-researched)
+- Build/test commands: {{BUILD_TEST}}
+- Forbidden: `git add -A` / `git add .` (add files by name), pushing directly to the default branch, out-of-scope changes
+- Report format: conclusion, evidence, changed files, verification results, remaining risks
 
-## 검토와 통합
+## Review and integration
 
-- 실행자의 보고는 주장이다. diff·테스트 결과로 확인한 뒤 사용자에게 보고한다.
-- 여러 결과를 합칠 때 충돌을 정리하고 전체 빌드·테스트를 돌린다.
-- 사용자에게는 진행·남은 일을 짧게 보고한다. 결정이 필요한 것만 묻는다.
+- An executor's report is a claim. Check it against the diff and test results before reporting to the user.
+- When combining results, resolve conflicts and run the full build and tests.
+- Report progress and what's left to the user briefly. Ask only about what needs a decision.
 
-## 브랜치와 PR
+## Branches and PRs
 
-- 기본 브랜치(`{{DEFAULT_BRANCH}}`)에 직접 푸시하지 않는다. 작업 브랜치 → PR → **사용자 승인 후** 머지.
-- 머지 전에 PR 파일 목록을 확인한다(GitHub면 `gh pr diff N --name-only`). 의도치 않은 파일(비밀값, 대용량, 생성물, 심볼릭 링크)이 있으면 멈춘다.
+- Never push directly to the default branch (`{{DEFAULT_BRANCH}}`). Work branch → PR → merge **after user approval**.
+- Before merging, check the PR's file list (on GitHub, `gh pr diff N --name-only`). Stop if there are unintended files (secrets, large files, build output, symlinks).
 - {{BRANCH_RULES}}
 
-## worktree 병렬
+## Parallel worktrees
 
-- 파일을 쓰는 작업을 병렬로 돌릴 때는 실행자마다 별도 git worktree에서 일하게 한다(플랫폼의 격리 기능 또는 `git worktree add`).
-- 읽기만 하는 조사는 같은 checkout에서 병렬로 돌려도 된다.
+- When running write tasks in parallel, give each executor its own git worktree (the platform's isolation feature or `git worktree add`).
+- Read-only research may run in parallel in the same checkout.
 
-## 검증
+## Verification
 
-- 검증은 `verifier`에 백그라운드로 맡기고 기다리지 않는다. 머지는 빌드·단위 테스트가 통과하면 승인 받아 진행하고, 검증에서 나온 오류는 후속 수정으로 처리한다.
-- 대상과 방법: {{VERIFY}}
-- 결과가 실패·부분 통과·미검증이면 증거(로그·캡처·테스트 데이터)를 지우지 않고 보고한다. 문제는 이슈로 남기고 고친 뒤 재검증한다.
+- Hand verification to `verifier` in the background and don't wait for it. Merge with approval once build and unit tests pass; handle errors found in verification as follow-up fixes.
+- Targets and methods: {{VERIFY}}
+- If a result is failed, partial, or unverified, keep the evidence (logs, captures, test data) and report it. Record the problem as an issue, fix it, then re-verify.

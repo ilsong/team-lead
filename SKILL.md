@@ -1,19 +1,19 @@
 ---
 name: team-lead
-description: 메인 세션을 팀장(오케스트레이터)으로 두고 세부 작업은 서브에이전트·하위 채팅·다른 에이전트 CLI 등에 맡기는 운영 방식. Claude Code, Codex 등 여러 에이전트에서 쓴다. `init`은 현재 프로젝트에 역할과 운영 규칙을 셋업하고, `assign`은 지금 채팅 세션을 팀장으로 지정한다. 사용자가 이 스킬을 init 또는 assign과 함께 부를 때만 쓴다.
-argument-hint: init | assign [첫 작업]
+description: Run the main session as a team lead (orchestrator) that hands detailed work to subagents, child chat sessions, or other agent CLIs. Works with Claude Code, Codex, and other agents. `init` sets up roles and operating rules for the current project; `assign` makes the current chat session the team lead. Use only when the user invokes this skill with init or assign.
+argument-hint: init | assign [first task]
 disable-model-invocation: true
 ---
 
 # team-lead
 
-사용자가 스킬 이름 뒤에 붙인 첫 단어로 모드를 고른다(Claude Code는 `$ARGUMENTS`, 다른 에이전트는 사용자 메시지에서 읽는다).
+Pick the mode from the first word after the skill name (Claude Code passes it in `$ARGUMENTS`; other agents read it from the user's message).
 
-- `init` → 이 SKILL.md와 같은 폴더의 `references/init.md`를 읽고 그대로 따른다.
-- `assign` → 같은 폴더의 `references/assign.md`를 읽고 그대로 따른다. 첫 단어 뒤에 남은 글이 있으면 팀장으로서 받은 첫 작업으로 다룬다.
-- 그 밖(빈 인자 포함) → 두 모드를 한 줄씩 설명하고 어느 쪽인지 묻는다.
+- `init` → read `references/init.md` in the same folder as this SKILL.md and follow it.
+- `assign` → read `references/assign.md` in the same folder and follow it. Any text after the first word is the first task given to the team lead.
+- Anything else (including no argument) → describe both modes in one line each and ask which one.
 
-공통:
-- 플랫폼(Claude Code, Codex 등)마다 다른 것은 `references/platforms.md`를 따른다.
-- 사용자와 대화하는 언어로 답하고, 프로젝트에 쓰는 파일도 그 언어로 쓴다(템플릿은 한국어이므로 필요하면 옮긴다).
-- 이 스킬은 **현재 프로젝트 안**만 바꾼다. 홈 디렉터리의 전역 설정·전역 에이전트·전역 지침 파일은 건드리지 않는다.
+Common:
+- Follow `references/platforms.md` for anything that differs by platform (Claude Code, Codex, etc.).
+- Reply in the language the user is using, and write project files in that language too (templates are in English; translate when needed).
+- Change only files **inside the current project**. Never touch global settings, global agents, or other home-directory files. The one exception is the global instruction file, and only when the user picks that scope in init (`platforms.md` §1).

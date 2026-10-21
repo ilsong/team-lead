@@ -1,78 +1,94 @@
-# 플랫폼과 위임 방법
+# Platforms and delegation methods
 
-init·assign이 참고하는 표. 여기에 없는 플랫폼은 그 플랫폼의 현재 문서·도움말(`<cli> --help`)로 같은 항목을 확인하고, 확인하지 못한 것은 사용자에게 묻는다. 모르는 형식을 지어내지 않는다.
+Reference tables for init and assign. For platforms not listed here, confirm the same items from that platform's current docs or help (`<cli> --help`), and ask the user about anything you can't confirm. Don't invent formats you don't know.
 
-## 1. 플랫폼별 위치
+## 1. Locations per platform
 
-| 플랫폼 | 프로젝트 지침 파일 | 스킬 위치(프로젝트) | 네이티브 서브에이전트 정의 | 질문 도구 |
+| Platform | Folder `<dir>` | Skill location (project) | Native subagent definitions | Question tool |
 |---|---|---|---|---|
-| Claude Code | `CLAUDE.md` (`@경로` 가져오기 가능) | `.claude/skills/` | `.claude/agents/<이름>.md` | `AskUserQuestion` |
-| Codex | `AGENTS.md` (가져오기 없음, 경로를 적어 읽게 함) | `.agents/skills/` | `.codex/agents/<이름>.toml` | 있으면 그 도구, 없으면 번호 목록 |
-| Gemini CLI | `GEMINI.md` | `.agents/skills/` | 확인 필요 | 번호 목록 |
-| Cursor·Copilot·OpenCode·Cline 등 | `AGENTS.md` | `.agents/skills/` | 확인 필요 | 번호 목록 |
+| Claude Code | `.claude` | `.claude/skills/` | `.claude/agents/<name>.md` | `AskUserQuestion` |
+| Codex | `.codex` | `.agents/skills/` | `.codex/agents/<name>.toml` | That tool if available, else numbered list |
+| Gemini CLI | `.gemini` | `.agents/skills/` | Needs confirmation | Numbered list |
+| Cursor, Copilot, OpenCode, Cline, etc. | `.agents` | `.agents/skills/` | Needs confirmation | Numbered list |
 
-질문 도구가 없으면 질문을 번호와 선택지 기호로 한 메시지에 모아 내고(예: `1) a. … b. …`), `1a 2bc`처럼 답하게 한 뒤 답을 기다린다.
+The rules file is `<dir>/team-lead/rules.md`; `cli` and `handoff` outputs also go under `<dir>/team-lead/`.
 
-## 2. 네이티브 서브에이전트 정의 형식
+**Instruction files by scope** (where the "always on" line goes)
 
-역할 정본(`.team-lead/roles/<역할>.md`)의 `description`·본문과 고른 모델·추론으로 만든다. 본문은 정본을 그대로 옮긴다(실행자가 정본 파일을 못 읽어도 되게).
+| Platform | Global | Project | Project-personal |
+|---|---|---|---|
+| Claude Code | `~/.claude/CLAUDE.md` | `CLAUDE.md` | `CLAUDE.local.md` |
+| Codex | `~/.codex/AGENTS.md` | `AGENTS.md` | Not supported |
+| Gemini CLI | `~/.gemini/GEMINI.md` | `GEMINI.md` | Not supported |
+| Others | Check docs | `AGENTS.md` | Not supported |
 
-**Claude Code** — `.claude/agents/<역할>.md`
+Line to add, under a `## Workflow` heading:
+- Claude Code project / project-personal: `@.claude/team-lead/rules.md`
+- Other project files: "Sessions in this project act as team lead. Before working, read and follow `<dir>/team-lead/rules.md`."
+- Global (`@` imports resolve relative to the file that contains them, so don't use them): "In a project that has `<dir>/team-lead/rules.md`, act as team lead: read and follow that file before working."
+
+If there's no question tool, put the questions in one message with numbers and option letters (e.g. `1) a. … b. …`), have the user answer like `1a 2bc`, and wait for the answer.
+
+## 2. Native subagent definition formats
+
+Build from the role's `description` and body plus the chosen model and effort. The body carries the full role instructions (so the executor needs nothing else).
+
+**Claude Code** — `.claude/agents/<role>.md`
 ```
 ---
-name: <역할>
+name: <role>
 description: <description>
-model: <opus|sonnet|haiku 또는 전체 모델 ID>
+model: <opus|sonnet|haiku or a full model ID>
 effort: <low|medium|high|xhigh|max>
-tools: <access가 read면 Read, Grep, Glob, Bash (researcher는 + WebFetch, WebSearch). write·run이면 줄 생략>
+tools: <if access is read: Read, Grep, Glob, Bash (researcher adds WebFetch, WebSearch). Omit the line for write/run>
 ---
-<본문>
+<body>
 ```
 
-**Codex** — `.codex/agents/<역할>.toml` (필수: `name`, `description`, `developer_instructions`. 나머지는 생략하면 부모 세션 값을 따른다)
+**Codex** — `.codex/agents/<role>.toml` (required: `name`, `description`, `developer_instructions`. Omitted fields inherit from the parent session)
 ```
-name = "<역할>"
+name = "<role>"
 description = "<description>"
-model = "<모델>"
+model = "<model>"
 model_reasoning_effort = "<low|medium|high|xhigh>"
-sandbox_mode = "<access가 read면 read-only, 아니면 workspace-write>"
+sandbox_mode = "<read-only if access is read, else workspace-write>"
 developer_instructions = """
-<본문>
+<body>
 """
 ```
-쓰기 전에 설치된 Codex가 이 형식을 받는지(버전·문서) 확인하고, 다르면 실제 형식을 따른다.
+Before writing, confirm the installed Codex accepts this format (version, docs); if it differs, follow the actual format.
 
-## 3. 모델 수준
+## 3. Model level
 
-역할 정본의 `tier`(상/중/하)를 플랫폼 모델로 옮긴다. 아래는 기본 제안이고, 사용자가 고른 수준(균형/품질/절약)에 따라 한 칸씩 올리거나 내린다.
+Map the role's `tier` (high/mid/low) to platform models. The table is the default suggestion; shift one step up or down by the chosen level (Balanced/Quality/Economy).
 
-| 플랫폼 | 상 | 중 | 하 |
+| Platform | high | mid | low |
 |---|---|---|---|
 | Claude Code | `sonnet` / `high` | `haiku` / `high` | `haiku` / `medium` |
-| 그 밖 | 설치된 CLI의 모델 목록·설정에서 가장 강한 코딩 모델 / `high` | 중간 모델 / `high` | 가장 싼 모델 / `medium` |
+| Others | Strongest coding model in the installed CLI's model list or settings / `high` | Mid model / `high` | Cheapest model / `medium` |
 
-- 품질: 상 = Claude `opus`(또는 그 플랫폼 최상위), 중·하도 한 단계씩 위.
-- 절약: 추론을 한 단계씩 낮춘다.
-- 모델 이름을 확신할 수 없으면 사용자에게 묻거나 비워 두어 부모 세션 값을 따르게 한다.
+- Quality: high = Claude `opus` (or the platform's top model); mid and low also one step up.
+- Economy: lower effort by one step each.
+- If unsure of a model name, ask the user or leave it empty so it inherits from the parent session.
 
-## 4. 위임 방법
+## 4. Delegation methods
 
-| 방법 | 무엇 | 쓸 수 있는 곳 | 비고 |
+| Method | What | Where available | Notes |
 |---|---|---|---|
-| `subagent` | 같은 세션 안에서 네이티브 서브에이전트 호출 | Claude Code(Agent 도구), Codex(서브에이전트) | 기본값. 정리할 것이 없다 |
-| `session` | 앱에서 별도 채팅 세션(하위 채팅)을 연다 | Claude 데스크톱·웹(세션 시작 도구), Codex 앱(새 스레드·클라우드 작업) 등 | 끝난 뒤 정리가 필요하다. 승인 규칙을 둔다 |
-| `cli` | 다른 에이전트 CLI를 헤드리스로 실행 | 셸이 있는 모든 플랫폼 | 서로 다른 에이전트 간 위임(예: Claude 팀장 → Codex 작업자)이 된다 |
-| `handoff` | 브리프 파일을 쓰고 사용자가 다른 도구에서 실행 | 어디서나 | 자동화 없음. 사람이 옮긴다 |
+| `subagent` | Call a native subagent within the same session | Claude Code (Agent tool), Codex (subagents) | Default. Nothing to clean up |
+| `session` | Open a separate chat session (child chat) in the app | Claude desktop/web (session start tool), Codex app (new thread, cloud task), etc. | Needs cleanup afterward. Has an approval rule |
+| `cli` | Run another agent CLI headless | Any platform with a shell | Enables delegation across different agents (e.g. Claude lead → Codex worker) |
+| `handoff` | Write a brief file; the user runs it in another tool | Anywhere | No automation. A person carries it over |
 
-**`cli` 명령 예** (설치 여부는 `command -v`로 확인. 옵션은 `--help`로 다시 확인)
-- Claude Code: `claude -p "<브리프>" --model <모델>`
-- Codex: `codex exec -m <모델> "<브리프>"` (읽기 전용이면 `--sandbox read-only`)
-- Gemini CLI: `gemini -p "<브리프>" -m <모델>`
+**`cli` command examples** (check installation with `command -v`; recheck options with `--help`)
+- Claude Code: `claude -p "<brief>" --model <model>`
+- Codex: `codex exec -m <model> "<brief>"` (add `--sandbox read-only` for read-only)
+- Gemini CLI: `gemini -p "<brief>" -m <model>`
 
-실행 규칙: 쓰기 작업은 그 실행자 전용 worktree에서, 백그라운드로 돌리고 출력은 `.team-lead/runs/<날짜-역할-요약>.md`에 남긴다. 브리프가 길면 파일로 쓰고 경로를 넘긴다.
+Run rules: write tasks run in a worktree dedicated to that executor, in the background, with output saved to `<dir>/team-lead/runs/<date-role-summary>.md` (`<dir>` = the lead's platform). If the brief is long, write it to a file and pass the path. The brief includes the role instructions (the body of that role's definition file).
 
-**`handoff` 규칙**: 팀장이 `.team-lead/briefs/<날짜-역할-요약>.md`에 브리프(역할 지침 포함)를 쓰고 사용자에게 어느 도구에서 실행할지 알린다. 실행자는 같은 이름에 `.report.md`를 붙여 보고를 남긴다.
+**`handoff` rules**: the lead writes a brief (including role instructions) to `<dir>/team-lead/briefs/<date-role-summary>.md` and tells the user which tool to run it in. The executor leaves its report at the same name with `.report.md` appended.
 
-**대체 순서**: 역할에 정한 방법을 지금 플랫폼에서 못 쓰면 `subagent`(이 플랫폼 기본 서브에이전트에 역할 지침을 브리프로) → `cli` → `handoff` 순으로 내려가고 사용자에게 알린다. `session`으로는 자동으로 내려가지 않는다.
+**Fallback order**: if a role's method isn't available on the current platform, fall back `subagent` (role instructions as a brief to this platform's default subagent) → `cli` → `handoff`, and tell the user. Never fall back to `session` automatically.
 
-`.team-lead/runs/`·`.team-lead/briefs/`는 쓸 때 만든다. 커밋할지는 사용자가 정한다(init 마무리에서 `.gitignore` 추가를 권할 수 있으나 직접 바꾸지 않는다).
+`runs/` and `briefs/` are created when first used. Whether to commit them is the user's call (init's wrap-up may suggest adding them to `.gitignore` but doesn't change it).

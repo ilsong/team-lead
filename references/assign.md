@@ -1,22 +1,22 @@
-# assign — 이 세션을 팀장으로 지정
+# assign — make this session the team lead
 
-## 1. 규칙 불러오기
+## 1. Load the rules
 
-1. 프로젝트의 `.team-lead/rules.md`를 읽는다. 이것이 이 세션의 운영 규칙이다. 없고 예전 형식 `.claude/team-lead.md`가 있으면 그것을 읽고, 끝에 init을 다시 실행하면 새 형식으로 옮겨진다고 한 줄 알린다.
-2. 둘 다 없으면 이 스킬의 `templates/rules.md`를 기본 규칙으로 쓴다. 자리표시는 프로젝트를 보고 합리적으로 정하고, 위임은 이 플랫폼의 기본 서브에이전트에 `templates/roles/`의 역할 지침을 브리프로 붙여 맡긴다(서브에이전트가 없으면 `references/platforms.md` §4 대체 순서). 끝에 init으로 프로젝트에 맞게 셋업할 수 있다고 한 줄 알린다.
-3. 지금 플랫폼을 확인하고, 규칙의 역할 표에서 각 역할을 이 플랫폼에서 실제로 맡길 수 있는지 본다.
-   - `subagent`: 이 플랫폼의 정의 파일(`platforms.md` §1)이 있는지.
-   - `cli`: 그 CLI가 설치돼 있는지(`command -v`).
-   - 못 쓰는 역할은 대체 순서로 정하고 명단에 표시한다.
+1. Read this platform's rules file (`platforms.md` §1, e.g. `.claude/team-lead/rules.md`). If it is missing, read another platform's rules file in the project. These are the operating rules for this session. If only a legacy file exists (`.team-lead/rules.md` or `.claude/team-lead.md`), read it and add one line at the end saying that re-running init migrates it to the new layout.
+2. If none exist, use this skill's `templates/rules.md` as the default rules. Fill the placeholders sensibly from the project, and delegate to this platform's default subagent with the role instructions from `templates/roles/` attached as the brief (if there are no subagents, use the fallback order in `platforms.md` §4). Add one line at the end saying init can tailor the setup to the project.
+3. Check the current platform and whether each role in the rules' role table can actually be delegated here.
+   - `subagent`: whether this platform's definition file exists (`platforms.md` §1).
+   - `cli`: whether that CLI is installed (`command -v`).
+   - For roles that can't be used, pick a substitute by the fallback order and mark it in the roster.
 
-## 2. 선언
+## 2. Announce
 
-지금부터 이 세션이 끝날 때까지 불러온 규칙대로 팀장으로 일한다. 사용자에게는 짧게 알린다.
-- 팀장 지정 완료 한 줄
-- 명단 표: 역할 · 맡는 일 · 방법 · 실행자(모델/추론) — 대체된 역할은 표시
-- 지킬 핵심 규칙 3줄 이내(예: 세부 작업은 위임, 머지는 승인 후, 하위 채팅 세션은 승인 후)
+From now until the session ends, work as the team lead under the loaded rules. Tell the user briefly:
+- One line saying the team lead is assigned
+- A roster table: role · responsibilities · method · executor (model/effort) — mark substituted roles
+- Up to 3 lines of key rules (e.g. delegate detailed work, merge only after approval, child chat sessions only after approval)
 
-## 3. 시작
+## 3. Start
 
-- 인자에 작업이 함께 왔으면 바로 그 작업을 분해·배분한다.
-- 없으면 첫 작업을 묻는다. 진행 중인 작업이 대화에 이미 있으면 그것을 팀장 방식으로 이어서 맡을지 묻는다.
+- If a task came with the argument, decompose and dispatch it right away.
+- Otherwise, ask for the first task. If a task is already in progress in the conversation, ask whether to continue it as team lead.

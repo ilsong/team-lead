@@ -1,71 +1,74 @@
-# init — 프로젝트 셋업
+# init — project setup
 
-목표: 현재 프로젝트(작업 디렉터리의 git 루트, 없으면 작업 디렉터리)에 팀장 운영에 필요한 파일을 만든다. 홈 디렉터리의 전역 설정(`~/.claude/`, `~/.codex/`, `~/.agents/` 등)은 건드리지 않는다. 플랫폼별 형식은 같은 폴더의 `platforms.md`를 따른다.
+Goal: create the files needed to run a team lead in the current project (the git root of the working directory, or the working directory if there is none). Home-directory files (`~/.claude/`, `~/.codex/`, `~/.agents/`, etc.) stay untouched, except the global instruction file when the user picks that scope. Follow `platforms.md` in the same folder for per-platform formats. `<dir>` below is each platform's folder (`platforms.md` §1: `.claude`, `.codex`, ...).
 
-만드는 것:
+What it creates:
 
-| 파일 | 언제 | 내용 |
+| File | When | Contents |
 |---|---|---|
-| `.team-lead/rules.md` | 항상 | 운영 규칙 정본(역할 명단·위임 방법·빌드/테스트·브랜치·검증) |
-| `.team-lead/roles/<역할>.md` | 항상 | 고른 역할의 지침 정본 |
-| `.claude/agents/<역할>.md` | Claude Code에서 `subagent` 방법을 쓰는 역할 | Claude 서브에이전트 정의 |
-| `.codex/agents/<역할>.toml` | Codex에서 `subagent` 방법을 쓰는 역할 | Codex 서브에이전트 정의 |
-| `CLAUDE.md`·`AGENTS.md`·`GEMINI.md`의 한 줄 | "항상 켜기"를 골랐을 때 | 모든 세션이 규칙을 읽게 하는 연결 |
-| `.claude/skills/team-lead/`·`.agents/skills/team-lead/` | "팀원 공유"를 골랐을 때 | 이 스킬 사본 |
+| `<dir>/team-lead/rules.md` | For each chosen platform | Operating rules (roster, delegation methods, build/test, branches, verification) |
+| `.claude/agents/<role>.md` | Claude Code chosen | Claude subagent definitions (one per role) |
+| `.codex/agents/<role>.toml` | Codex chosen | Codex subagent definitions (one per role) |
+| `<dir>/team-lead/roles/<role>.md` | Platforms without native subagent definitions | Role instructions |
+| A line in the instruction file | "Always on" chosen | Link that makes every session read the rules. The file depends on the chosen scope (global / project / project-personal) |
+| `.claude/skills/team-lead/`, `.agents/skills/team-lead/` | "Share with team" chosen | Copy of this skill |
 
-## 1. 살펴보기 (묻기 전에)
+## 1. Survey (before asking)
 
-조용히 확인하고 질문의 기본값에 반영한다.
-- 기존 셋업: `.team-lead/`(있으면 **재실행**: 현재 값을 기본값으로 보여 주고 바뀐 것만 고친다), 예전 형식 `.claude/team-lead.md`(있으면 `.team-lead/rules.md`로 옮기고 `CLAUDE.md`의 `@.claude/team-lead.md`를 `@.team-lead/rules.md`로 바꾼다), `.claude/agents/`, `.codex/agents/`.
-- 쓰는 플랫폼의 흔적: `CLAUDE.md`·`.claude/`, `AGENTS.md`·`.codex/`, `GEMINI.md`, `.cursor/` 등. 설치된 CLI: `command -v claude codex gemini`.
-- 지금 이 init을 실행하는 플랫폼(자기 자신).
-- 언어·빌드 도구·테스트 명령(`package.json` scripts, `Makefile`, `gradlew`, `pyproject.toml`, `Cargo.toml` 등), CI 설정, `git remote`, `gh` 사용 가능 여부, 기본 브랜치.
-- UI가 있는지(웹·모바일·데스크톱) → 검증 역할 추천 근거.
+Check quietly and use the results as defaults for the questions.
+- Existing setup: `<dir>/team-lead/` (if present this is a **re-run**: show current values as defaults and change only what differs), `.claude/agents/`, `.codex/agents/`, and lines in instruction files that point to the rules (all scopes in `platforms.md` §1).
+- Legacy layouts: `.team-lead/` (previous version) or `.claude/team-lead.md` (oldest). If present, migrate in §3.
+- Traces of platforms in use: `CLAUDE.md`·`.claude/`, `AGENTS.md`·`.codex/`, `GEMINI.md`·`.gemini/`, `.cursor/`, etc. Installed CLIs: `command -v claude codex gemini`.
+- The platform running this init (yourself).
+- Language, build tools, test commands (`package.json` scripts, `Makefile`, `gradlew`, `pyproject.toml`, `Cargo.toml`, etc.), CI config, `git remote`, whether `gh` is available, default branch.
+- Whether there is a UI (web, mobile, desktop) → grounds for recommending the verifier role.
 
-## 2. 묻기
+## 2. Ask
 
-플랫폼의 질문 도구로 묻고, 없으면 번호 목록으로 묻는다(`platforms.md` §1). 추천안을 첫 선택지에 두고 "(추천)"을 붙인다. 살펴본 결과로 이미 분명한 것은 묻지 않고 기본값으로 둔다. 한 번에 4문항 이내, 필요하면 여러 차례.
+Ask with the platform's question tool, or as a numbered list if it has none (`platforms.md` §1). Put the recommended option first and mark it "(Recommended)". Don't ask what the survey already made clear; use it as the default. At most 4 questions at a time; use several rounds if needed.
 
-**1차**
-1. **플랫폼**(복수) — 이 프로젝트에서 팀장·실행자로 쓸 에이전트. 흔적과 설치된 CLI로 미리 체크해 확인만 받는다. 예: Claude Code / Codex / Gemini CLI / 그 밖(이름 입력).
-2. **역할**(복수)
-   - `worker` — 설계·구현·단위 테스트(항상 추천)
-   - `reviewer` — 코드 검토(읽기 전용)
-   - `researcher` — 코드·문서 조사, 넓은 탐색(읽기 전용, 싼 모델)
-   - `verifier` — 실행 검증(테스트 전체, 브라우저, 에뮬레이터 등). UI나 기기 검증이 있으면 추천
-3. **위임 방법**(복수, `platforms.md` §4)
-   - 서브에이전트(추천) — 같은 세션 안에서 위임, 정리할 것 없음
-   - 하위 채팅 세션 — 앱에서 별도 채팅을 열어 위임
-   - 다른 에이전트 CLI — 예: Claude 팀장이 `codex exec`로 작업자·검토자를 돌림
-   - 수동 핸드오프 — 브리프 파일을 써 주면 사용자가 다른 도구에서 실행
-4. **모델 수준** — 균형(추천) / 품질 / 절약 (`platforms.md` §3)
+**Round 1**
+1. **Platforms** (multi) — agents used as lead and executors in this project. Pre-check from traces and installed CLIs; just ask for confirmation. E.g. Claude Code / Codex / Gemini CLI / other (enter a name).
+2. **Roles** (multi)
+   - `worker` — design, implementation, unit tests (always recommended)
+   - `reviewer` — code review (read-only)
+   - `researcher` — code/doc research, broad search (read-only, cheap model)
+   - `verifier` — runtime verification (full tests, browser, emulator, etc.). Recommend if there is a UI or device to verify
+3. **Delegation methods** (multi, `platforms.md` §4)
+   - Subagent (Recommended) — delegate within the same session, nothing to clean up
+   - Child chat session — open a separate chat in the app
+   - Other agent CLI — e.g. a Claude lead runs workers or reviewers through `codex exec`
+   - Manual handoff — write a brief file; the user runs it in another tool
+4. **Model level** — Balanced (Recommended) / Quality / Economy (`platforms.md` §3)
 
-**2차(고른 것에 따라)**
-- 방법을 둘 이상 골랐으면: **역할별 방법과 실행자**. 기본은 모든 역할 = 서브에이전트(팀장과 같은 플랫폼). 다른 에이전트 CLI를 골랐으면 어느 역할을 어느 CLI로 돌릴지(예: reviewer = Codex — 서로 다른 모델이 검토하면 맹점이 줄어든다).
-- 하위 채팅 세션을 골랐으면: **여는 규칙** — 매번 사용자 승인 후(추천) / 팀장 판단으로 자유롭게. 그리고 무엇에 쓸지(예: 오래 걸리는 독립 작업, 사용자가 직접 지켜볼 작업).
-- **팀장 켜는 방식** — `assign` 할 때만(추천) / 항상(이 프로젝트의 모든 세션이 팀장).
-- **작업 규칙**(복수, 고른 것만 규칙 파일에 넣는다) — 브랜치 → PR → 승인 후 머지 / 쓰기 작업 병렬은 worktree로 격리 / 검증은 백그라운드로 맡기고 기다리지 않음 / 팀원 공유(스킬 사본을 프로젝트에).
-- `verifier`를 골랐으면: 검증 대상과 방법(에뮬레이터 이름·시리얼, 브라우저 URL, 테스트 명령 등), 동시에 하나만 돌려야 하는 공유 자원인지, 보고서 위치.
-- 빌드·테스트 명령을 못 찾았으면 묻는다.
-- 같은 이름의 파일이 이미 있으면: 덮어쓰기 / 건너뛰기 / 새 이름.
+**Round 2 (depending on answers)**
+- If two or more methods were chosen: **method and executor per role**. Default: every role = subagent (same platform as the lead). If other agent CLIs were chosen, which role runs on which CLI (e.g. reviewer = Codex — a different model reviewing reduces blind spots).
+- If child chat sessions were chosen: **opening rule** — ask the user every time (Recommended) / free at the lead's discretion. Also what they are for (e.g. long independent tasks, tasks the user wants to watch).
+- **How the lead turns on** — only on `assign` (Recommended) / always (every session in this project is the lead).
+- If always: **where to record it** (`platforms.md` §1) — project-personal (Recommended, e.g. `CLAUDE.local.md`: only you, only this project) / project (e.g. `CLAUDE.md`: everyone working on this repo) / global (e.g. `~/.claude/CLAUDE.md`: all your projects that have this setup). Leave out scopes the chosen platform doesn't support.
+- **Work rules** (multi; only chosen ones go into the rules file) — branch → PR → merge after approval / isolate parallel write tasks in worktrees / run verification in the background without waiting / share with team (copy the skill into the project).
+- If `verifier` was chosen: verification targets and methods (emulator name/serial, browser URL, test command, etc.), whether it is a shared resource that must run one at a time, where reports go.
+- If build/test commands weren't found, ask.
+- If a file with the same name already exists: overwrite / skip / new name.
 
-## 3. 쓰기
+## 3. Write
 
-- **역할 정본**: 이 스킬의 `templates/roles/<역할>.md`를 `.team-lead/roles/<역할>.md`로 옮기고 `{{…}}`를 채운다. frontmatter의 `tier`는 남기고, 프로젝트에 필요 없는 줄은 지운다.
-- **규칙 정본**: `templates/rules.md`를 `.team-lead/rules.md`로 옮긴다.
-  - `{{ROLE_ROWS}}`: 실제로 만든 역할만, `| 역할 | 맡는 일 | 방법 | 플랫폼 · 모델 / 추론 |`.
-  - `{{METHODS}}`: 고른 방법만 한 단락씩 — 언제 쓰는지, 실행 명령이나 도구, 승인 규칙(하위 채팅 세션은 고른 규칙을 굵게), `platforms.md` §4의 실행 규칙·대체 순서를 이 프로젝트에 맞게 줄여 옮긴다. 하위 채팅 세션을 고르지 않았으면 "별도 채팅 세션은 사용자가 요청할 때만 연다" 한 줄을 넣는다.
-  - 나머지 자리표시를 채우고, 고르지 않은 규칙 절은 지운다.
-- **플랫폼 어댑터**: `subagent` 방법을 쓰는 역할마다, 그 역할을 맡을 플랫폼의 정의 파일을 `platforms.md` §2 형식으로 만든다. 팀장으로 쓸 플랫폼이 여럿이면 각 플랫폼에 다 만든다(어느 쪽에서 assign해도 같은 명단이 되게).
-- **항상 켜기**면 고른 플랫폼의 지침 파일(없으면 만든다)에 아래를 넣는다. 이미 있으면 다시 넣지 않는다. assign 방식이면 건드리지 않고, 항상 → assign으로 바꾸면 그 줄을 지운다.
-  - `CLAUDE.md`: `## 작업 방식` 아래 `@.team-lead/rules.md`
-  - `AGENTS.md`·`GEMINI.md`: `## 작업 방식` 아래 "이 프로젝트의 세션은 팀장이다. 작업 전에 `.team-lead/rules.md`를 읽고 따른다."
-- **팀원 공유**면 이 스킬 폴더의 `SKILL.md`, `references/`, `templates/`, `README.md`, `LICENSE`를 고른 플랫폼의 스킬 위치(`platforms.md` §1)에 `team-lead/`로 복사한다(`.git` 제외).
-- 설정 파일(`.claude/settings.json`, `.codex/config.toml` 등)과 `.gitignore`, 전역 파일은 바꾸지 않는다. 기능을 켜려면 설정이 필요한 경우(예: 서브에이전트가 꺼진 Codex 버전)는 마무리에서 알리기만 한다.
+- **Migrate legacy layout**: move the contents of `.team-lead/rules.md` or `.claude/team-lead.md` into the new rules file(s), and `.team-lead/runs/`·`.team-lead/briefs/` into the lead platform's `<dir>/team-lead/`. Change instruction-file lines that point to the old paths to the new path. Delete the old files only after the user confirms.
+- **Rules**: copy `templates/rules.md` to each chosen platform's `<dir>/team-lead/rules.md`. The copies are identical except `{{ROLE_FILES}}`; on re-run keep them in sync.
+  - `{{ROLE_ROWS}}`: only the roles actually created, `| role | responsibilities | method | platform · model / effort |`.
+  - `{{ROLE_FILES}}`: where that platform's role instructions live (`.claude/agents/<role>.md`, `.codex/agents/<role>.toml`, or `<dir>/team-lead/roles/<role>.md`).
+  - `{{METHODS}}`: one paragraph per chosen method — when to use it, the command or tool, approval rules (bold the chosen rule for child chat sessions), and a project-specific condensed version of the run rules and fallback order from `platforms.md` §4. If child chat sessions weren't chosen, add one line: "Open separate chat sessions only when the user asks."
+  - Fill the remaining placeholders and delete sections for rules that weren't chosen.
+- **Roles**: fill `{{…}}` in this skill's `templates/roles/<role>.md`, delete lines the project doesn't need, then write them in each chosen platform's format.
+  - Platforms with native subagents: definition files in the `platforms.md` §2 format for **every** role (also used as the fallback when a `cli` role's CLI isn't available, and as the brief for `cli`/`handoff`).
+  - Platforms without: `<dir>/team-lead/roles/<role>.md` (keep the template as is, including frontmatter).
+- **Always on**: add the line from `platforms.md` §1 to the instruction file for the chosen scope (create the file if missing). Don't add it twice. In assign mode don't touch it; when switching always → assign or changing scope, remove the line from the old file.
+- **Share with team**: copy this skill folder's `SKILL.md`, `references/`, `templates/`, `README.md`, `LICENSE` to the chosen platforms' skill locations (`platforms.md` §1) as `team-lead/` (excluding `.git`).
+- Don't change settings files (`.claude/settings.json`, `.codex/config.toml`, etc.), `.gitignore`, or global files other than the chosen global instruction file. If a feature needs a setting to turn on (e.g. a Codex version with subagents off), just mention it in the wrap-up.
 
-## 4. 마무리
+## 4. Wrap up
 
-- 만든·바꾼 파일과 역할별 방법·실행자·모델/추론을 표로 보여 준다.
-- 커밋은 하지 않는다. 팀원과 공유하려면 이 파일들을 커밋하라고 한 줄로 안내한다(만든 경로가 `.gitignore`에 걸려 있으면 그 사실도). `cli`·`handoff`를 골랐으면 `.team-lead/runs/`·`.team-lead/briefs/`를 커밋에서 뺄지 정하라고 알린다.
-- 서브에이전트 정의는 **새 세션부터** 잡힐 수 있다고 알린다.
-- 다음 단계: 새 세션에서 `team-lead assign`(항상 켜기면 그냥 작업 지시). 호출법은 플랫폼마다 다르다(Claude Code `/team-lead assign`, Codex `$team-lead assign`).
+- Show a table of created/changed files and each role's method, executor, model/effort.
+- Don't commit. In one line, say to commit these files to share with the team (and mention if a created path is caught by `.gitignore`). If project-personal scope was chosen and that file isn't in `.gitignore`, say to add it. If `cli` or `handoff` was chosen, say to decide whether to exclude `<dir>/team-lead/runs/` and `<dir>/team-lead/briefs/` from commits.
+- Say subagent definitions may only be picked up **from a new session**.
+- Next step: `team-lead assign` in a new session (or just give a task if always on). Invocation differs by platform (Claude Code `/team-lead assign`, Codex `$team-lead assign`).
