@@ -47,8 +47,7 @@ Asks:
 2. Roles — worker / reviewer / researcher / verifier
 3. Delegation methods, and which role uses which
 4. Model level — Balanced / Quality / Economy (Claude Code Balanced: worker·reviewer `sonnet`, verifier·researcher `haiku`)
-5. When the lead is on — only after `assign` / every session
-6. Where to record it, per platform:
+5. Where to record it, per platform:
 
    | Scope | Claude Code | Codex | Gemini CLI |
    |---|---|---|---|

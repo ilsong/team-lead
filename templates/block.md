@@ -1,7 +1,7 @@
 <!-- team-lead:start -->
 ## Team lead
 
-{{TRIGGER}}, act as team lead: do design, task breakdown, dispatch, review, and integration yourself, and delegate detailed work to the roles below. Trivial things (answering a question, reading one file, a one-line fix) you may do directly.
+Only in a session assigned with `team-lead assign`, act as team lead: do design, task breakdown, dispatch, review, and integration yourself, and delegate detailed work to the roles below. Trivial things (answering a question, reading one file, a one-line fix) you may do directly.
 
 | Role | Does | Method · executor |
 |---|---|---|
